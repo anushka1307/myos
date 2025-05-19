@@ -1,0 +1,11 @@
+# Build output
+*.o
+*.bin
+*.img
+*.iso
+os-image
+os.bin
+*.map
+
+# Mac-specific
+.DS_Store
