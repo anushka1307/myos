@@ -1,19 +1,35 @@
-// kernel.c - our main C kernel code
-// Save this as "kernel.c"
+#include "idt.h"
+
+void clear_screen() {
+    char* vga = (char*)0xB8000;
+    for (int i = 0; i < 80 * 25 * 2; i += 2) {
+        vga[i] = ' ';      // Character
+        vga[i + 1] = 0x0F; // White on black
+    }
+}
+
+void print_string(const char* str, int x, int y, uint8_t color) {
+    char* vga = (char*)0xB8000;
+    int pos = (y * 80 + x) * 2;
+    
+    for (int i = 0; str[i] != 0; i++) {
+        vga[pos + i * 2] = str[i];
+        vga[pos + i * 2 + 1] = color;
+    }
+}
 
 void kernel_main() {
-    // Video memory pointer - VGA text mode buffer starts at 0xB8000
-    char* video_mem = (char*) 0xB8000;
+    clear_screen();
     
-    // Message to display
-    const char* message = "Hello from the kernel!";
+    // Print header
+    print_string("MyOS - Keyboard Test", 0, 0, 0x0B); // Cyan text
+    print_string("Type something: ", 0, 1, 0x0F);     // White text
     
-    // Display the message (VGA text mode is 2 bytes per character - ASCII code and attribute)
-    int i = 0;
-    while (message[i] != 0) {
-        // Character at even-numbered addresses, attribute at odd-numbered addresses
-        video_mem[i * 2] = message[i];           // Character
-        video_mem[i * 2 + 1] = 0x0F;             // White on black
-        i++;
+    idt_init();
+    __asm__ __volatile__("sti");  // Enable interrupts
+    
+    // Kernel main loop
+    while (1) {
+        __asm__ __volatile__("hlt"); // Halt CPU until interrupt
     }
 }

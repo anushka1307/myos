@@ -141,3 +141,4 @@ MSG_DISK_ERROR db "Disk read error!", 0
 ; Fill remaining space and add boot signature
 times 510 - ($ - $$) db 0
 dw 0xAA55
+
